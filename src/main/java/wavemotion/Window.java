@@ -4,6 +4,9 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
+import java.util.Objects;
+
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.opengl.GL11.*;
@@ -23,6 +26,18 @@ public class Window {
         this.title = "Wave Motion Engine";
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public long getGlfwWindow() {
+        return glfwWindow;
+    }
+
     public static Window getInstance() {
         if(Window.window == null) {
             Window.window = new Window();
@@ -36,6 +51,13 @@ public class Window {
 
         init();
         runLoop();
+
+        // clean up
+        glfwFreeCallbacks(glfwWindow);
+        glfwDestroyWindow(glfwWindow);
+
+        glfwTerminate();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 
     public void init() {
@@ -60,6 +82,11 @@ public class Window {
             errorMsg = "Failed to create glfw window";
             throw new IllegalStateException(errorMsg);
         }
+
+        // configure mouse listener
+        glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
+        glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
+        glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
 
         // Make OpenGL context
         glfwMakeContextCurrent(glfwWindow);
