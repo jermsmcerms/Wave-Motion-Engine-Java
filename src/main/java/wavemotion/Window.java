@@ -1,8 +1,13 @@
 package wavemotion;
 
+import factories.SceneFactory;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import utils.Time;
+import wavemotion.listeners.KeyListener;
+import wavemotion.listeners.MouseListener;
+import wavemotion.scene.Scene;
 
 import java.util.Objects;
 
@@ -17,13 +22,21 @@ public class Window {
     private int height;
     private String title;
     private static Window window = null;
+    private static Scene currentScene;
     private long glfwWindow;
     private String errorMsg;
+    private float red;
+    private float green;
+    private float blue;
+
 
     private Window() {
         this.width = 1920;
         this.height = 1080;
         this.title = "Wave Motion Engine";
+        red = 1.0f;
+        green = 1.0f;
+        blue = 1.0f;
     }
 
     public int getWidth() {
@@ -43,6 +56,10 @@ public class Window {
             Window.window = new Window();
         }
         return Window.window;
+    }
+
+    public static void changeScene(SceneFactory.SceneBaseType sceneType) {
+        currentScene = SceneFactory.makeScene(sceneType);
     }
 
     public void run() {
@@ -87,6 +104,7 @@ public class Window {
         glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
         glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
         glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
+        glfwSetKeyCallback(glfwWindow, KeyListener::keyListenerCallback);
 
         // Make OpenGL context
         glfwMakeContextCurrent(glfwWindow);
@@ -101,15 +119,35 @@ public class Window {
         // creates the GLCapabilities instance and makes the OpenGL
         // bindings available for use.
         GL.createCapabilities();
+
+        Window.changeScene(SceneFactory.SceneBaseType.LevelEditor);
     }
 
     public void runLoop() {
+        float beginTime = Time.getTime();
+        float endTime;
+        float dt = 1.0f;
+
         while(!glfwWindowShouldClose(glfwWindow)) {
             glfwPollEvents();
-            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClearColor(red, green, blue, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
+            if(dt >= 0.0f) {
+                currentScene.update(dt);
+            }
+
             glfwSwapBuffers(glfwWindow);
+
+            endTime = Time.getTime();
+            dt = endTime - beginTime;
+            beginTime = endTime;
         }
+    }
+
+    public void updateColor(float dt) {
+        red += dt;
+        green += dt;
+        blue += dt;
     }
 }
