@@ -18,25 +18,18 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
-    private int width;
-    private int height;
-    private String title;
+    private final int width;
+    private final int height;
+    private final String title;
     private static Window window = null;
     private static Scene currentScene;
     private long glfwWindow;
-    private String errorMsg;
-    private float red;
-    private float green;
-    private float blue;
 
 
     private Window() {
         this.width = 1920;
         this.height = 1080;
         this.title = "Wave Motion Engine";
-        red = 1.0f;
-        green = 1.0f;
-        blue = 1.0f;
     }
 
     public int getWidth() {
@@ -60,6 +53,8 @@ public class Window {
 
     public static void changeScene(SceneFactory.SceneBaseType sceneType) {
         currentScene = SceneFactory.makeScene(sceneType);
+        assert currentScene != null;
+        currentScene.init();
     }
 
     public void run() {
@@ -82,6 +77,7 @@ public class Window {
         GLFWErrorCallback.createPrint(System.err).set();
 
         // initialize GLFW
+        String errorMsg = "";
         if(!glfwInit()) {
             errorMsg = "Unable to initialize GLFW";
             throw new IllegalStateException(errorMsg);
@@ -130,7 +126,7 @@ public class Window {
 
         while(!glfwWindowShouldClose(glfwWindow)) {
             glfwPollEvents();
-            glClearColor(red, green, blue, 1.0f);
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             if(dt >= 0.0f) {
@@ -143,11 +139,5 @@ public class Window {
             dt = endTime - beginTime;
             beginTime = endTime;
         }
-    }
-
-    public void updateColor(float dt) {
-        red += dt;
-        green += dt;
-        blue += dt;
     }
 }
