@@ -1,95 +1,59 @@
 package wavemotion.scene;
 
 import org.joml.Vector2f;
-import org.lwjgl.BufferUtils;
-import renderer.Shader;
-import utils.Time;
+import renderer.Renderer;
+import utils.AssetPool;
 import wavemotion.Camera;
+import wavemotion.components.Sprite;
+import wavemotion.components.SpriteRenderer;
+import wavemotion.components.SpriteSheet;
+import wavemotion.components.Transform;
+import wavemotion.entities.GameObject;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import java.security.InvalidKeyException;
+import java.util.ArrayList;
 
 public class LevelEditorScene extends Scene {
-    private Shader defaultShader;
-
-    private float[] vertexArray = {
-        100.5f,   0.5f, 0.0f,     1.0f, 0.0f, 0.0f, 0.0f, // bottom right
-          0.5f, 100.5f, 0.0f,     0.0f, 1.0f, 0.0f, 0.0f, // top left
-        100.5f, 100.5f, 0.0f,     0.0f, 0.0f, 1.0f, 0.0f, // top right
-          0.5f,   0.5f, 0.0f,     1.0f, 1.0f, 0.0f, 0.0f  // bottom left
-    };
-
-    // must be counter clock-wise order
-    private int[] elementArray = {
-        2, 1, 0,
-        0, 1, 3
-    };
-
-    private int vaoId;
-    private int vboId;
-    private int eboId;
+    private static final String spriteSheetPath = "assets/images/spritesheet.png";
+    private GameObject gameObject;
 
     public LevelEditorScene () {
+        gameObjectList = new ArrayList<>();
     }
 
     @Override
     public void init() {
+        loadResources();
+        renderer = new Renderer();
         camera = new Camera(new Vector2f());
-        defaultShader = new Shader("assets/shaders/defaultShader.glsl");
-        defaultShader.compileAndLink();
 
-        // create VAO, VBO, and EBO buffers
-        vaoId = glGenVertexArrays();
-        glBindVertexArray(vaoId);
+        try {
+            SpriteSheet spriteSheet = AssetPool.getSpriteSheet(spriteSheetPath);
 
-        FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertexArray.length);
-        vertexBuffer.put(vertexArray).flip();
+            gameObject = new GameObject("mario", new Transform(new Vector2f(100, 100), new Vector2f(256, 256)));
+            gameObject.addComponent(new SpriteRenderer(spriteSheet.getSprite(0)));
+            addGameObjectsToScene(gameObject);
 
-        vboId = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
-
-        IntBuffer elementBuffer = BufferUtils.createIntBuffer(elementArray.length);
-        elementBuffer.put(elementArray).flip();
-
-        eboId = glGenBuffers();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementArray, GL_STATIC_DRAW);
-
-        int positionSize = 3;
-        int colorSize = 4;
-        int vertexSizeInBytes = (positionSize + colorSize) * Float.BYTES;
-        glVertexAttribPointer(0, positionSize, GL_FLOAT, false, vertexSizeInBytes, 0);
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, vertexSizeInBytes, positionSize * Float.BYTES);
-        glEnableVertexAttribArray(1);
+            GameObject gameObject2 = new GameObject("ryu", new Transform(new Vector2f(400, 100), new Vector2f(256, 256)));
+            gameObject2.addComponent(new SpriteRenderer(spriteSheet.getSprite(1)));
+            addGameObjectsToScene(gameObject2);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void update (float deltaTime) {
-        camera.position.x -= deltaTime * 50.0f;
-        camera.position.y -= deltaTime * 50.0f;
-        // Bind shader program
-        defaultShader.use();
+        for(GameObject go : gameObjectList) {
+            go.update(deltaTime);
+        }
 
-        defaultShader.uploadMat4f("uProjMatrix", camera.getProjectionMatrix());
-        defaultShader.uploadMat4f("uViewMatrix", camera.getViewMatrix());
-        defaultShader.uploadFloat("uTime", Time.getTime());
+        renderer.render();
+    }
 
-        glBindVertexArray(vaoId);
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glDrawElements(GL_TRIANGLES, elementArray.length, GL_UNSIGNED_INT, 0);
-
-        // Unbind
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glBindVertexArray(0);
-        defaultShader.detach();
+    private void loadResources() {
+        AssetPool.getShader("assets/shaders/defaultShader.glsl");
+        AssetPool.addSpriteSheet(spriteSheetPath,
+            new SpriteSheet(AssetPool.getTexture(spriteSheetPath), 16, 16, 26, 0));
     }
 }

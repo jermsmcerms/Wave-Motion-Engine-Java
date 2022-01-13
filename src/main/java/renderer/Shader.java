@@ -97,6 +97,10 @@ public class Shader {
         isBeingUsed = false;
     }
 
+    public void uploadTexture(String name, int slot) {
+        uploadInt(name, slot);
+    }
+
     public void uploadVec2f(String name, Vector2f vector) {
         int varLocation = glGetUniformLocation(shaderProgramID, name);
         use();
@@ -141,5 +145,11 @@ public class Shader {
         int varLocation = glGetUniformLocation(shaderProgramID, name);
         use();
         glUniform1i(varLocation, value);
+    }
+
+    public void uploadIntArray(String name, int[] slots) {
+        int varLocation = glGetUniformLocation(shaderProgramID, name);
+        use();
+        glUniform1iv(varLocation, slots);
     }
 }

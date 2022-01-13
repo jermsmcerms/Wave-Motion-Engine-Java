@@ -4,7 +4,6 @@ import factories.SceneFactory;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import utils.Time;
 import wavemotion.listeners.KeyListener;
 import wavemotion.listeners.MouseListener;
 import wavemotion.scene.Scene;
@@ -55,6 +54,11 @@ public class Window {
         currentScene = SceneFactory.makeScene(sceneType);
         assert currentScene != null;
         currentScene.init();
+        currentScene.start();
+    }
+
+    public static Scene getCurrentScene() {
+        return currentScene;
     }
 
     public void run() {
@@ -120,7 +124,7 @@ public class Window {
     }
 
     public void runLoop() {
-        float beginTime = Time.getTime();
+        float beginTime = (float)glfwGetTime();
         float endTime;
         float dt = 1.0f;
 
@@ -135,7 +139,7 @@ public class Window {
 
             glfwSwapBuffers(glfwWindow);
 
-            endTime = Time.getTime();
+            endTime = (float)glfwGetTime();
             dt = endTime - beginTime;
             beginTime = endTime;
         }
