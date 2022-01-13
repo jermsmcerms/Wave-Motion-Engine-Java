@@ -2,6 +2,7 @@ package wavemotion.scene;
 
 import org.joml.Vector2f;
 import renderer.Renderer;
+import renderer.Texture;
 import utils.AssetPool;
 import wavemotion.Camera;
 import wavemotion.components.Sprite;
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 
 public class LevelEditorScene extends Scene {
     private static final String spriteSheetPath = "assets/images/spritesheet.png";
-    private GameObject gameObject;
 
     public LevelEditorScene () {
         gameObjectList = new ArrayList<>();
@@ -30,13 +30,19 @@ public class LevelEditorScene extends Scene {
         try {
             SpriteSheet spriteSheet = AssetPool.getSpriteSheet(spriteSheetPath);
 
-            gameObject = new GameObject("mario", new Transform(new Vector2f(100, 100), new Vector2f(256, 256)));
-            gameObject.addComponent(new SpriteRenderer(spriteSheet.getSprite(0)));
-            addGameObjectsToScene(gameObject);
+            GameObject red = new GameObject("image1",
+                new Transform(new Vector2f(200, 100), new Vector2f(256, 256)), 13);
+            red.addComponent(new SpriteRenderer(
+                new Sprite(AssetPool.getTexture("assets/images/red.png"))
+            ));
+            addGameObjectsToScene(red);
 
-            GameObject gameObject2 = new GameObject("ryu", new Transform(new Vector2f(400, 100), new Vector2f(256, 256)));
-            gameObject2.addComponent(new SpriteRenderer(spriteSheet.getSprite(1)));
-            addGameObjectsToScene(gameObject2);
+            GameObject green = new GameObject("image2",
+                new Transform(new Vector2f(400, 100), new Vector2f(256, 256)), 10);
+            green.addComponent(new SpriteRenderer(
+                new Sprite(AssetPool.getTexture("assets/images/green.png"))
+            ));
+            addGameObjectsToScene(green);
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }

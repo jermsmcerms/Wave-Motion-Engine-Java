@@ -7,18 +7,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameObject {
+    public Transform transform;
     private String name;
     private List<Component> componentsList;
-    public Transform transform;
+    private int zIndex;
 
     public GameObject(String name) {
-        this(name, new Transform());
+        this(name, new Transform(), 0);
     }
 
-    public GameObject(String name, Transform transform) {
+    public GameObject(String name, Transform transform, int zIndex) {
         this.name = name;
         componentsList = new ArrayList<>();
         this.transform = transform;
+        this.zIndex = zIndex;
+    }
+
+    public int getZIndex() {
+        return zIndex;
     }
 
     public <T extends Component> T getComponent(Class<T> componentClass) {

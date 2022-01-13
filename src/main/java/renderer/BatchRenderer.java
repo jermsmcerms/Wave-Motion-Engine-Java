@@ -16,7 +16,7 @@ import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
-public class BatchRenderer {
+public class BatchRenderer implements Comparable<BatchRenderer> {
     private static final int POSITION_SIZE = 2;
     private static final int COLOR_SIZE = 4;
     private static final int TEXTURE_COORDINATES_SIZE = 2;
@@ -38,9 +38,11 @@ public class BatchRenderer {
     private int vboId;
     private int maxBatchSize;
     private int[] textureSlots = {0,1,2,3,4,5,6,7};
+    private int zIndex;
 
-    public BatchRenderer(int maxBatchSize) {
+    public BatchRenderer(int maxBatchSize, int zIndex) {
         this.maxBatchSize = maxBatchSize;
+        this.zIndex = zIndex;
         shader = AssetPool.getShader("assets/shaders/defaultShader.glsl");
         this.sprites = new SpriteRenderer[this.maxBatchSize];
         // 4 is the number of vertices per quadrilateral
@@ -48,6 +50,10 @@ public class BatchRenderer {
         numSprites = 0;
         isFull = false;
         textureList = new ArrayList<>();
+    }
+
+    public int getZIndex() {
+        return zIndex;
     }
 
     public void start() {
@@ -211,5 +217,10 @@ public class BatchRenderer {
 
             offset += VERTEX_SIZE;
         }
+    }
+
+    @Override
+    public int compareTo(BatchRenderer o) {
+        return Integer.compare(zIndex, o.zIndex);
     }
 }

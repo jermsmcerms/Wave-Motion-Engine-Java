@@ -13,12 +13,13 @@ public class SpriteRenderer extends Component {
     public SpriteRenderer(Vector4f color) {
         this.color = color;
         sprite = new Sprite(null);
-        isDirty = false;
+        isDirty = true;
     }
 
     public SpriteRenderer(Sprite sprite) {
         this.sprite = sprite;
         color = new Vector4f(1.0f,1.0f,1.0f,1.0f);
+        isDirty = true;
     }
 
     public Vector4f getColor() {

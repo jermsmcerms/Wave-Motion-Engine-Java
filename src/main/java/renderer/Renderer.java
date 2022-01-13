@@ -4,6 +4,7 @@ import wavemotion.components.SpriteRenderer;
 import wavemotion.entities.GameObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Renderer {
@@ -31,7 +32,7 @@ public class Renderer {
     private void add(SpriteRenderer spriteRenderer) {
         boolean added = false;
         for(BatchRenderer batch : batches) {
-            if(!batch.isFull()) {
+            if(!batch.isFull() && spriteRenderer.parent.getZIndex() == batch.getZIndex()) {
                 Texture texture = spriteRenderer.getTexture();
                 if(texture == null || (batch.hasTexture(texture) || batch.isTextureSlotsFull())) {
                     batch.addSprite(spriteRenderer);
@@ -42,10 +43,11 @@ public class Renderer {
         }
 
         if(!added) {
-            BatchRenderer batchRenderer = new BatchRenderer(MAX_BATCH_SIZE);
+            BatchRenderer batchRenderer = new BatchRenderer(MAX_BATCH_SIZE, spriteRenderer.parent.getZIndex());
             batchRenderer.start();
             batches.add(batchRenderer);
             batchRenderer.addSprite(spriteRenderer);
+            Collections.sort(batches);
         }
     }
 }
