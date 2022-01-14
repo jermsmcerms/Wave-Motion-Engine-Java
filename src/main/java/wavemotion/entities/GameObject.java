@@ -61,4 +61,10 @@ public class GameObject {
             }
         }
     }
+
+    public void imGui() {
+        for(Component component : componentsList) {
+            component.imGui();
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package wavemotion.components;
 
+import imgui.ImGui;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import renderer.Texture;
@@ -64,6 +65,15 @@ public class SpriteRenderer extends Component {
     public void update(float dt) {
         if(!lastTransform.equals(parent.transform)) {
             parent.transform.copyTransform(lastTransform);
+            isDirty = true;
+        }
+    }
+
+    @Override
+    public void imGui() {
+        float[] imColors = { color.x, color.y, color.z, color.w };
+        if(ImGui.colorPicker4("Color Picker: ", imColors)) {
+            this.color.set(imColors);
             isDirty = true;
         }
     }

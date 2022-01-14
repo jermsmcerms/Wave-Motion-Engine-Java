@@ -1,5 +1,6 @@
 package wavemotion.scene;
 
+import imgui.ImGui;
 import renderer.Renderer;
 import wavemotion.Camera;
 import wavemotion.entities.GameObject;
@@ -11,6 +12,7 @@ public abstract class Scene {
     protected List<GameObject> gameObjectList;
     protected boolean isRunning = false;
     protected Renderer renderer;
+    protected GameObject activeGameObject;
 
     public Scene() {
     }
@@ -38,6 +40,20 @@ public abstract class Scene {
             go.start();
             renderer.add(go);
         }
+    }
+
+    public void sceneImGui() {
+        if(activeGameObject != null) {
+            ImGui.begin("inspector");
+            activeGameObject.imGui();
+            ImGui.end();
+        }
+
+        imGui();
+    }
+
+    public void imGui() {
+
     }
 
     public abstract void update(float deltaTime);

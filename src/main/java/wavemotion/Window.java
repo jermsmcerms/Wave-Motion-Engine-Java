@@ -1,9 +1,19 @@
 package wavemotion;
 
 import factories.SceneFactory;
+import imgui.ImFontAtlas;
+import imgui.ImFontConfig;
+import imgui.ImGui;
+import imgui.ImGuiIO;
+import imgui.flag.ImGuiConfigFlags;
+import imgui.gl3.ImGuiImplGl3;
+import imgui.glfw.ImGuiImplGlfw;
 import org.lwjgl.Version;
+import org.lwjgl.glfw.Callbacks;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import wavemotion.imgui.ImGuiLayer;
 import wavemotion.listeners.KeyListener;
 import wavemotion.listeners.MouseListener;
 import wavemotion.scene.Scene;
@@ -24,8 +34,11 @@ public class Window {
     private static Scene currentScene;
     private long glfwWindow;
 
+    private String glslVersion = null;
+    private ImGuiLayer imGuiLayer;
 
     private Window() {
+        this.imGuiLayer = new ImGuiLayer();
         this.width = 1920;
         this.height = 1080;
         this.title = "Wave Motion Engine";
@@ -69,6 +82,8 @@ public class Window {
         runLoop();
 
         // clean up
+        imGuiLayer.destroyImGui();
+
         glfwFreeCallbacks(glfwWindow);
         glfwDestroyWindow(glfwWindow);
 
@@ -124,6 +139,7 @@ public class Window {
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
         Window.changeScene(SceneFactory.SceneBaseType.LevelEditor);
+        imGuiLayer.init(glfwWindow, glslVersion);
     }
 
     public void runLoop() {
@@ -139,6 +155,8 @@ public class Window {
             if(dt >= 0.0f) {
                 currentScene.update(dt);
             }
+
+            imGuiLayer.render(currentScene);
 
             glfwSwapBuffers(glfwWindow);
 

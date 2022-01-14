@@ -20,6 +20,7 @@ dependencies {
 
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
 
+    implementation fileTree('libs') { include '*.jar'}
     implementation "org.lwjgl:lwjgl"
     implementation "org.lwjgl:lwjgl-assimp"
     implementation "org.lwjgl:lwjgl-glfw"

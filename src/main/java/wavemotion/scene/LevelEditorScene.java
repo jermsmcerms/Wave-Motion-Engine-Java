@@ -1,6 +1,8 @@
 package wavemotion.scene;
 
+import imgui.ImGui;
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 import renderer.Renderer;
 import renderer.Texture;
 import utils.AssetPool;
@@ -33,9 +35,10 @@ public class LevelEditorScene extends Scene {
             GameObject red = new GameObject("image1",
                 new Transform(new Vector2f(200, 100), new Vector2f(256, 256)), 13);
             red.addComponent(new SpriteRenderer(
-                new Sprite(AssetPool.getTexture("assets/images/red.png"))
+                new Vector4f(1.0f, 0.0f, 0.0f, 1.0f)
             ));
             addGameObjectsToScene(red);
+            activeGameObject = red;
 
             GameObject green = new GameObject("image2",
                 new Transform(new Vector2f(400, 100), new Vector2f(256, 256)), 10);
@@ -55,6 +58,13 @@ public class LevelEditorScene extends Scene {
         }
 
         renderer.render();
+    }
+
+    @Override
+    public void imGui() {
+        ImGui.begin("Test");
+        ImGui.text("test text");
+        ImGui.end();
     }
 
     private void loadResources() {
