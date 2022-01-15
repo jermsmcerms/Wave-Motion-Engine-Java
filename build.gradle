@@ -18,9 +18,10 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
-    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
-
     implementation fileTree('libs') { include '*.jar'}
+
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    implementation 'com.google.code.gson:gson:2.8.9'
     implementation "org.lwjgl:lwjgl"
     implementation "org.lwjgl:lwjgl-assimp"
     implementation "org.lwjgl:lwjgl-glfw"

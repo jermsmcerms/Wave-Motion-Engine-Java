@@ -9,12 +9,12 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.*;
 
 public class Texture {
-    private final int width;
-    private final int height;
+    private int width;
+    private int height;
     private String path;
     private int textureId;
 
-    public Texture(String path) {
+    public void init(String path) {
         this.path = path;
         textureId = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, textureId);
@@ -43,7 +43,7 @@ public class Texture {
                 throw new IllegalArgumentException("Unknown channel value: " + channels.get(0));
             }
             glTexImage2D(GL_TEXTURE_2D, 0, colorFormat, bufferWidth.get(0), bufferHeight.get(0),
-                    0, colorFormat, GL_UNSIGNED_BYTE, image);
+                0, colorFormat, GL_UNSIGNED_BYTE, image);
         } else {
             throw new NullPointerException("Error loading image texture: " + this.path);
         }
@@ -51,7 +51,6 @@ public class Texture {
         // Does not use JVM garbage collector. So, must be freed manually.
         stbi_image_free(image);
     }
-
     public int getWidth() {
         return width;
     }
@@ -66,5 +65,9 @@ public class Texture {
 
     public void unbind() {
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    public int getId() {
+        return textureId;
     }
 }

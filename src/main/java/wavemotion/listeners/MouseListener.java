@@ -1,114 +1,129 @@
 package wavemotion.listeners;
 
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
+import wavemotion.Camera;
+import wavemotion.Window;
+
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 public class MouseListener {
-    private static final int NUM_MOUSE_BUTTONS = 3;
-    private static MouseListener mouseListener;
-    private double scrollX;
-    private double scrollY;
-    private double xPos;
-    private double yPos;
-    private double lastX;
-    private double lastY;
-    private boolean mouseButtonClicked[] = new boolean[NUM_MOUSE_BUTTONS];
+    private static MouseListener instance;
+    private double scrollX, scrollY;
+    private double xPos, yPos, lastY, lastX;
+    private boolean mouseButtonPressed[] = new boolean[3];
     private boolean isDragging;
 
     private MouseListener() {
         this.scrollX = 0.0;
         this.scrollY = 0.0;
-        this.xPos    = 0.0;
-        this.yPos    = 0.0;
-        this.lastX   = 0.0;
-        this.lastY   = 0.0;
-        this.isDragging = false;
+        this.xPos = 0.0;
+        this.yPos = 0.0;
+        this.lastX = 0.0;
+        this.lastY = 0.0;
     }
 
-    public static MouseListener getInstance() {
-        if(MouseListener.mouseListener == null) {
-            MouseListener.mouseListener = new MouseListener();
+    public static MouseListener get() {
+        if (MouseListener.instance == null) {
+            MouseListener.instance = new MouseListener();
         }
-        return MouseListener.mouseListener;
+
+        return MouseListener.instance;
     }
 
-    public static void mousePosCallback(long window, double xPos, double yPos) {
-        getInstance().lastX = getInstance().xPos;
-        getInstance().lastY = getInstance().yPos;
-        getInstance().xPos = xPos;
-        getInstance().yPos = yPos;
+    public static void mousePosCallback(long window, double xpos, double ypos) {
+        get().lastX = get().xPos;
+        get().lastY = get().yPos;
+        get().xPos = xpos;
+        get().yPos = ypos;
+        get().isDragging = get().mouseButtonPressed[0] || get().mouseButtonPressed[1] || get().mouseButtonPressed[2];
+    }
 
-        for(int i = 0; i < getInstance().mouseButtonClicked.length; i++) {
-            if(getInstance().mouseButtonClicked[i]) {
-                getInstance().isDragging = true;
-                break;
+    public static void mouseButtonCallback(long window, int button, int action, int mods) {
+        if (action == GLFW_PRESS) {
+            if (button < get().mouseButtonPressed.length) {
+                get().mouseButtonPressed[button] = true;
+            }
+        } else if (action == GLFW_RELEASE) {
+            if (button < get().mouseButtonPressed.length) {
+                get().mouseButtonPressed[button] = false;
+                get().isDragging = false;
             }
         }
     }
 
-    public static void mouseButtonCallback(long window, int button, int action, int mods) {
-        if(button < 0 || button >= getInstance().mouseButtonClicked.length) {
-            String errorMessage = "key: " + button +
-                    "out of bounds for length: " + getInstance().mouseButtonClicked.length;
-            throw new ArrayIndexOutOfBoundsException(errorMessage);
-        }
-
-        if(action == GLFW_PRESS) {
-                    getInstance().mouseButtonClicked[button] = true;
-            } else if(action == GLFW_RELEASE) {
-            getInstance().mouseButtonClicked[button] = false;
-            getInstance().isDragging = false;
-        }
-    }
-
     public static void mouseScrollCallback(long window, double xOffset, double yOffset) {
-        getInstance().scrollX = xOffset;
-        getInstance().scrollY = yOffset;
+        get().scrollX = xOffset;
+        get().scrollY = yOffset;
     }
 
     public static void endFrame() {
-        getInstance().scrollX = 0.0;;
-        getInstance().scrollY = 0.0;
-        getInstance().xPos    = 0.0;
-        getInstance().yPos    = 0.0;
-        getInstance().lastX   = 0.0;
-        getInstance().lastY   = 0.0;
+        get().scrollX = 0;
+        get().scrollY = 0;
+        get().lastX = get().xPos;
+        get().lastY = get().yPos;
     }
 
     public static float getX() {
-        return (float)getInstance().xPos;
+        return (float)get().xPos;
     }
 
     public static float getY() {
-        return (float)getInstance().yPos;
+        return (float)get().yPos;
+    }
+
+    public static float getOrthoX() {
+        float currentX = getX();
+        currentX = (currentX / (float)Window.getWidth()) * 2.0f - 1.0f;
+        Vector4f tmp = new Vector4f(currentX, 0, 0, 1);
+        Camera camera = Window.getCurrentScene().getCamera();
+        Matrix4f viewProjection = new Matrix4f();
+        camera.getInverseView().mul(camera.getInverseProjection(), viewProjection);
+        tmp.mul(viewProjection);
+        currentX = tmp.x;
+
+        return currentX;
+    }
+
+    public static float getOrthoY() {
+        float currentY = Window.getHeight() - getY();
+        currentY = (currentY / (float) Window.getHeight()) * 2.0f - 1.0f;
+        Vector4f tmp = new Vector4f(0, currentY, 0, 1);
+        Camera camera = Window.getCurrentScene().getCamera();
+        Matrix4f viewProjection = new Matrix4f();
+        camera.getInverseView().mul(camera.getInverseProjection(), viewProjection);
+        tmp.mul(viewProjection);
+        currentY = tmp.y;
+
+        return currentY;
     }
 
     public static float getDx() {
-        return (float)(getInstance().lastX - getInstance().xPos);
+        return (float)(get().lastX - get().xPos);
     }
 
     public static float getDy() {
-        return (float)(getInstance().lastY - getInstance().yPos);
+        return (float)(get().lastY - get().yPos);
     }
 
     public static float getScrollX() {
-        return (float)getInstance().scrollX;
+        return (float)get().scrollX;
     }
 
     public static float getScrollY() {
-        return (float)getInstance().scrollY;
+        return (float)get().scrollY;
     }
 
     public static boolean isDragging() {
-        return getInstance().isDragging;
+        return get().isDragging;
     }
 
-    public static boolean isMouseButtonDown(int button) {
-        if(button < 0 || button >= getInstance().mouseButtonClicked.length) {
-            String errorMessage = "key: " + button +
-                "out of bounds for length: " + getInstance().mouseButtonClicked.length;
-            throw new ArrayIndexOutOfBoundsException(errorMessage);
+    public static boolean mouseButtonDown(int button) {
+        if (button < get().mouseButtonPressed.length) {
+            return get().mouseButtonPressed[button];
+        } else {
+            return false;
         }
-        return getInstance().mouseButtonClicked[button];
     }
 }

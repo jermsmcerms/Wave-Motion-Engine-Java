@@ -1,0 +1,112 @@
+[
+  {
+    "transform": {
+      "position": {
+        "x": 200.0,
+        "y": 100.0
+      },
+      "scale": {
+        "x": 256.0,
+        "y": 256.0
+      },
+      "uid": -1
+    },
+    "uid": 0,
+    "name": "image1",
+    "componentsList": [
+      {
+        "type": "wavemotion.components.SpriteRenderer",
+        "properties": {
+          "color": {
+            "x": 0.8148148,
+            "y": 1.0,
+            "z": 0.0,
+            "w": 1.0
+          },
+          "sprite": {
+            "width": 0.0,
+            "height": 0.0,
+            "textureCoordinates": [
+              {
+                "x": 1.0,
+                "y": 1.0
+              },
+              {
+                "x": 1.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 1.0
+              }
+            ]
+          },
+          "uid": 0
+        }
+      }
+    ],
+    "zIndex": -1
+  },
+  {
+    "transform": {
+      "position": {
+        "x": 400.0,
+        "y": 100.0
+      },
+      "scale": {
+        "x": 256.0,
+        "y": 256.0
+      },
+      "uid": -1
+    },
+    "uid": 1,
+    "name": "image2",
+    "componentsList": [
+      {
+        "type": "wavemotion.components.SpriteRenderer",
+        "properties": {
+          "color": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0,
+            "w": 1.0
+          },
+          "sprite": {
+            "texture": {
+              "width": 256,
+              "height": 256,
+              "path": "assets/images/green.png",
+              "textureId": 2
+            },
+            "width": 0.0,
+            "height": 0.0,
+            "textureCoordinates": [
+              {
+                "x": 1.0,
+                "y": 1.0
+              },
+              {
+                "x": 1.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 1.0
+              }
+            ]
+          },
+          "uid": 1
+        }
+      }
+    ],
+    "zIndex": 0
+  }
+]

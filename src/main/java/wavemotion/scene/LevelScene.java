@@ -14,7 +14,7 @@ public class LevelScene extends Scene {
     }
 
     @Override
-    public void addGameObjectsToScene(GameObject go) {
+    public void addGameObjectToScene(GameObject go) {
 
     }
 }

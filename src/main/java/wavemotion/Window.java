@@ -27,8 +27,8 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
-    private final int width;
-    private final int height;
+    private static int width;
+    private static int height;
     private final String title;
     private static Window window = null;
     private static Scene currentScene;
@@ -44,11 +44,11 @@ public class Window {
         this.title = "Wave Motion Engine";
     }
 
-    public int getWidth() {
+    public static int getWidth() {
         return width;
     }
 
-    public int getHeight() {
+    public static int getHeight() {
         return height;
     }
 
@@ -66,6 +66,7 @@ public class Window {
     public static void changeScene(SceneFactory.SceneBaseType sceneType) {
         currentScene = SceneFactory.makeScene(sceneType);
         assert currentScene != null;
+        currentScene.load();
         currentScene.init();
         currentScene.start();
     }
@@ -109,7 +110,7 @@ public class Window {
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
         // create the window
-        glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
+        glfwWindow = glfwCreateWindow(width, height, title, NULL, NULL);
         if(glfwWindow == NULL) {
             errorMsg = "Failed to create glfw window";
             throw new IllegalStateException(errorMsg);
@@ -120,6 +121,10 @@ public class Window {
         glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
         glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
         glfwSetKeyCallback(glfwWindow, KeyListener::keyListenerCallback);
+        glfwSetWindowSizeCallback(glfwWindow, (w, newWidth, newHeight) -> {
+            Window.setWidth(newWidth);
+            Window.setHeight(newHeight);
+        });
 
         // Make OpenGL context
         glfwMakeContextCurrent(glfwWindow);
@@ -140,6 +145,14 @@ public class Window {
 
         Window.changeScene(SceneFactory.SceneBaseType.LevelEditor);
         imGuiLayer.init(glfwWindow, glslVersion);
+    }
+
+    private static void setHeight(int newHeight) {
+        height = newHeight;
+    }
+
+    private static void setWidth(int newWidth) {
+        width = newWidth;
     }
 
     public void runLoop() {
@@ -164,5 +177,6 @@ public class Window {
             dt = endTime - beginTime;
             beginTime = endTime;
         }
+        currentScene.saveExit();
     }
 }

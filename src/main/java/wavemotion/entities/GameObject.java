@@ -8,6 +8,9 @@ import java.util.List;
 
 public class GameObject {
     public Transform transform;
+
+    private static int ID_COUNT = 0;
+    private int uid = -1;
     private String name;
     private List<Component> componentsList;
     private int zIndex;
@@ -21,6 +24,7 @@ public class GameObject {
         componentsList = new ArrayList<>();
         this.transform = transform;
         this.zIndex = zIndex;
+        uid = ID_COUNT++;
     }
 
     public int getZIndex() {
@@ -49,6 +53,7 @@ public class GameObject {
     }
 
     public void addComponent(Component component) {
+        component.generateId();
         componentsList.add(component);
         component.parent = this;
     }
@@ -66,5 +71,17 @@ public class GameObject {
         for(Component component : componentsList) {
             component.imGui();
         }
+    }
+
+    public int getUID() {
+        return uid;
+    }
+
+    public List<Component> getAllComponents() {
+        return componentsList;
+    }
+
+    public static void init(int maxID) {
+        ID_COUNT = maxID;
     }
 }

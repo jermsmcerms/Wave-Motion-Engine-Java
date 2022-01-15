@@ -29,7 +29,11 @@ public class SpriteSheet {
                     new Vector2f(leftX, bottomY),
                     new Vector2f(leftX, topY)
                 };
-            Sprite sprite = new Sprite(texture, texCoords);
+            Sprite sprite = new Sprite();
+            sprite.setTexture(texture);
+            sprite.setTexCoords(texCoords);
+            sprite.setWidth(width);
+            sprite.setHeight(height);
             spriteSheet.add(sprite);
             currentX += width + padding;
             if(currentX >= texture.getWidth()) {
@@ -41,5 +45,9 @@ public class SpriteSheet {
 
     public Sprite getSprite(int index) {
         return spriteSheet.get(index);
+    }
+
+    public int size() {
+        return spriteSheet.size();
     }
 }
