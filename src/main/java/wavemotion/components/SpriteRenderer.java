@@ -26,6 +26,10 @@ public class SpriteRenderer extends Component {
         return sprite.getTexture();
     }
 
+    public void setTexture(Texture texture) {
+        sprite.setTexture(texture);
+    }
+
     public void setSprite(Sprite sprite) {
         this.sprite = sprite;
         isDirty = true;

@@ -1,18 +1,11 @@
 package wavemotion;
 
 import factories.SceneFactory;
-import imgui.ImFontAtlas;
-import imgui.ImFontConfig;
-import imgui.ImGui;
-import imgui.ImGuiIO;
-import imgui.flag.ImGuiConfigFlags;
-import imgui.gl3.ImGuiImplGl3;
-import imgui.glfw.ImGuiImplGlfw;
 import org.lwjgl.Version;
-import org.lwjgl.glfw.Callbacks;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import renderer.DebugDraw;
+import renderer.Framebuffer;
 import wavemotion.imgui.ImGuiLayer;
 import wavemotion.listeners.KeyListener;
 import wavemotion.listeners.MouseListener;
@@ -22,7 +15,6 @@ import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -34,13 +26,15 @@ public class Window {
     private static Scene currentScene;
     private long glfwWindow;
 
-    private String glslVersion = null;
+    private String glslVersion = "#version 430";
     private ImGuiLayer imGuiLayer;
+
+    private static Framebuffer framebuffer;
 
     private Window() {
         this.imGuiLayer = new ImGuiLayer();
-        this.width = 1920;
-        this.height = 1080;
+        width = 1366;
+        height = 700;
         this.title = "Wave Motion Engine";
     }
 
@@ -50,6 +44,14 @@ public class Window {
 
     public static int getHeight() {
         return height;
+    }
+
+    public static Framebuffer getFrameBuffer() {
+        return framebuffer;
+    }
+
+    public static float getTargetAspectRatio() {
+        return 16.0f / 9.0f;
     }
 
     public long getGlfwWindow() {
@@ -85,9 +87,11 @@ public class Window {
         // clean up
         imGuiLayer.destroyImGui();
 
+        // Free the memory
         glfwFreeCallbacks(glfwWindow);
         glfwDestroyWindow(glfwWindow);
 
+        // Terminate GLFW and the free the error callback
         glfwTerminate();
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
@@ -143,8 +147,12 @@ public class Window {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        Window.changeScene(SceneFactory.SceneBaseType.LevelEditor);
         imGuiLayer.init(glfwWindow, glslVersion);
+
+        framebuffer = new Framebuffer(1366, 768);
+        glViewport(0,0,1366, 768);
+
+        Window.changeScene(SceneFactory.SceneBaseType.LevelEditor);
     }
 
     private static void setHeight(int newHeight) {
@@ -162,14 +170,22 @@ public class Window {
 
         while(!glfwWindowShouldClose(glfwWindow)) {
             glfwPollEvents();
+
+            DebugDraw.beginFrame();
+
+            framebuffer.bind();
+
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
+            // TODO: uncomment when ready to finish frame buffers
             if(dt >= 0.0f) {
+                DebugDraw.draw();
                 currentScene.update(dt);
             }
-
-            imGuiLayer.render(currentScene);
+            // TODO: uncomment when ready to finish frame buffers
+            framebuffer.unbind();
+            imGuiLayer.render(currentScene, beginTime);
 
             glfwSwapBuffers(glfwWindow);
 

@@ -12,7 +12,28 @@ public class Texture {
     private int width;
     private int height;
     private String path;
-    private int textureId;
+    private transient int textureId;
+
+    public Texture() {
+        textureId = -1;
+        width = -1;
+        height = -1;
+    }
+
+    public Texture(int width, int height) {
+        path = "generated_texture";
+
+        textureId = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, textureId);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height,
+            0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+    }
 
     public void init(String path) {
         this.path = path;
@@ -51,6 +72,11 @@ public class Texture {
         // Does not use JVM garbage collector. So, must be freed manually.
         stbi_image_free(image);
     }
+
+    public String getPath() {
+        return path;
+    }
+
     public int getWidth() {
         return width;
     }
@@ -69,5 +95,20 @@ public class Texture {
 
     public int getId() {
         return textureId;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+
+        if(!(obj instanceof  Texture)) {
+            return false;
+        }
+
+        Texture texture = (Texture) obj;
+        return texture.getWidth() == getWidth() && texture.getHeight() == getHeight() &&
+            texture.getPath().equals(getPath()) && texture.getId() == getId();
     }
 }
