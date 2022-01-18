@@ -173,7 +173,7 @@ public class ImGuiLayer {
         ImGui.newFrame();
 
         setupDockSpace();
-        currentScene.sceneImGui();
+        currentScene.sceneImgui();
         GameView.imGui();
         ImGui.end();
         ImGui.render();

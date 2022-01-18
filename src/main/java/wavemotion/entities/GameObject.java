@@ -10,7 +10,8 @@ public class GameObject {
     public Transform transform;
 
     private static int ID_COUNT = 0;
-    private int uid = -1;
+    private int uid;
+
     private String name;
     private List<Component> componentsList;
     private int zIndex;
@@ -25,6 +26,7 @@ public class GameObject {
         this.transform = transform;
         this.zIndex = zIndex;
         uid = ID_COUNT++;
+        System.out.println("gouid: " + uid);
     }
 
     public int getZIndex() {

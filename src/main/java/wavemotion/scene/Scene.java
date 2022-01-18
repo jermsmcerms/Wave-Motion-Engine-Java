@@ -14,47 +14,53 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Scene {
+    protected Renderer renderer = new Renderer();
     protected Camera camera;
-    protected List<GameObject> gameObjectList;
-    protected boolean isRunning = false;
-    protected Renderer renderer;
-    protected GameObject activeGameObject;
+    private boolean isRunning = false;
+    protected List<GameObject> gameObjectList = new ArrayList<>();
+    protected GameObject activeGameObject = null;
     protected boolean levelLoaded = false;
 
     public Scene() {
+
     }
 
     public void init() {
 
     }
 
-    public Camera getCamera() {
-        return camera;
-    }
-
     public void start() {
-        for(GameObject go : gameObjectList) {
+        for (GameObject go : gameObjectList) {
             go.start();
-            renderer.add(go);
+            this.renderer.add(go);
         }
         isRunning = true;
     }
+
     public void addGameObjectToScene(GameObject go) {
-        if(!isRunning) {
+        if (!isRunning) {
             gameObjectList.add(go);
         } else {
             gameObjectList.add(go);
             go.start();
-            renderer.add(go);
+            this.renderer.add(go);
         }
     }
 
-    public void sceneImGui() {
-        if(activeGameObject != null) {
-            ImGui.begin("inspector");
+    public abstract void update(float dt);
+    public abstract void render();
+
+    public Camera getCamera() {
+        return this.camera;
+    }
+
+    public void sceneImgui() {
+        if (activeGameObject != null) {
+            ImGui.begin("Inspector");
             activeGameObject.imGui();
             ImGui.end();
         }
@@ -74,10 +80,10 @@ public abstract class Scene {
             .create();
 
         try {
-            FileWriter fw = new FileWriter("level.txt");
-            fw.write(gson.toJson(gameObjectList));
-            fw.close();
-        } catch (IOException e) {
+            FileWriter writer = new FileWriter("level.json");
+            writer.write(gson.toJson(this.gameObjectList));
+            writer.close();
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
@@ -91,7 +97,7 @@ public abstract class Scene {
 
         String inFile = "";
         try {
-            inFile = new String(Files.readAllBytes(Paths.get("level.txt")));
+            inFile = new String(Files.readAllBytes(Paths.get("level.json")));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -100,26 +106,24 @@ public abstract class Scene {
             int maxGoId = -1;
             int maxCompId = -1;
             GameObject[] objs = gson.fromJson(inFile, GameObject[].class);
-            for (int i = 0; i < objs.length; i++) {
+            for (int i=0; i < objs.length; i++) {
                 addGameObjectToScene(objs[i]);
-                for(Component component : objs[i].getAllComponents()) {
-                    if(component.getUID() > maxCompId) {
-                        maxCompId = component.getUID();
+
+                for (Component c : objs[i].getAllComponents()) {
+                    if (c.getUID() > maxCompId) {
+                        maxCompId = c.getUID();
                     }
                 }
-                if(objs[i].getUID() > maxGoId) {
+                if (objs[i].getUID() > maxGoId) {
                     maxGoId = objs[i].getUID();
                 }
             }
 
             maxGoId++;
             maxCompId++;
-            System.out.println("ids" + maxGoId + " " + maxCompId);
             GameObject.init(maxGoId);
             Component.init(maxCompId);
             this.levelLoaded = true;
         }
     }
-
-    public abstract void update(float deltaTime);
 }

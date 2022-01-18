@@ -6,6 +6,9 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import renderer.DebugDraw;
 import renderer.Framebuffer;
+import renderer.Renderer;
+import renderer.Shader;
+import utils.AssetPool;
 import wavemotion.imgui.ImGuiLayer;
 import wavemotion.listeners.KeyListener;
 import wavemotion.listeners.MouseListener;
@@ -26,10 +29,12 @@ public class Window {
     private static Scene currentScene;
     private long glfwWindow;
 
-    private String glslVersion = "#version 430";
+    private String glslVersion = "#version 330 core";
     private ImGuiLayer imGuiLayer;
 
     private static Framebuffer framebuffer;
+
+    private PickupTexture pickupTexture;
 
     private Window() {
         this.imGuiLayer = new ImGuiLayer();
@@ -150,6 +155,7 @@ public class Window {
         imGuiLayer.init(glfwWindow, glslVersion);
 
         framebuffer = new Framebuffer(1366, 768);
+        pickupTexture = new PickupTexture(1366, 786);
         glViewport(0,0,1366, 768);
 
         Window.changeScene(SceneFactory.SceneBaseType.LevelEditor);
@@ -168,9 +174,30 @@ public class Window {
         float endTime;
         float dt = 1.0f;
 
+        Shader defaultShader = AssetPool.getShader("assets/shaders/defaultShader.glsl");
+        Shader pickingShader = AssetPool.getShader("assets/shaders/pickupShader.glsl");
         while(!glfwWindowShouldClose(glfwWindow)) {
             glfwPollEvents();
 
+            // render picking layer
+            glDisable(GL_BLEND);
+            pickupTexture.enableWriting();
+            glViewport(0,0, 1366,786);
+            glClearColor(0.0f,0.0f,0.0f,0.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            Renderer.bindShader(pickingShader);
+            currentScene.render();
+
+            if(MouseListener.mouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+                int x = (int)MouseListener.getScreenX();
+                int y = (int)MouseListener.getScreenY();
+                System.out.println(pickupTexture.readPixel(x, y));
+            }
+
+            pickupTexture.disableWriting();
+            glEnable(GL_BLEND);
+
+            // render engine layer
             DebugDraw.beginFrame();
 
             framebuffer.bind();
@@ -182,6 +209,8 @@ public class Window {
             if(dt >= 0.0f) {
                 DebugDraw.draw();
                 currentScene.update(dt);
+                Renderer.bindShader(defaultShader);
+                currentScene.render();
             }
             // TODO: uncomment when ready to finish frame buffers
             framebuffer.unbind();

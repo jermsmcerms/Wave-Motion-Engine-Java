@@ -17,18 +17,20 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public class BatchRenderer implements Comparable<BatchRenderer> {
-    private static final int POSITION_SIZE = 2;
-    private static final int COLOR_SIZE = 4;
-    private static final int TEXTURE_COORDINATES_SIZE = 2;
-    private static final int TEXTURE_ID_SIZE = 1;
-    private static final int POSITION_OFFSET = 0;
-    private static final int COLOR_OFFSET = (POSITION_OFFSET + POSITION_SIZE) * Float.BYTES;
-    private static final int TEXTURE_COORDINATES_OFFSET = COLOR_OFFSET + COLOR_SIZE * Float.BYTES;
-    private static final int TEXTURE_COORDINATES_ID_OFFSET = TEXTURE_COORDINATES_OFFSET + TEXTURE_COORDINATES_SIZE * Float.BYTES;
-    private static final int VERTEX_SIZE = 9;
-    private static final int VERTEX_SIZE_IN_BYTES = VERTEX_SIZE * Float.BYTES;
+    private final int POS_SIZE = 2;
+    private final int COLOR_SIZE = 4;
+    private final int TEX_COORDS_SIZE = 2;
+    private final int TEX_ID_SIZE = 1;
+    private final int ENTITY_ID_SIZE = 1;
 
-    private Shader shader;
+    private final int POS_OFFSET = 0;
+    private final int COLOR_OFFSET = POS_OFFSET + POS_SIZE * Float.BYTES;
+    private final int TEX_COORDS_OFFSET = COLOR_OFFSET + COLOR_SIZE * Float.BYTES;
+    private final int TEX_ID_OFFSET = TEX_COORDS_OFFSET + TEX_COORDS_SIZE * Float.BYTES;
+    private final int ENTITY_ID_OFFSET = TEX_ID_OFFSET + TEX_ID_SIZE * Float.BYTES;
+    private final int VERTEX_SIZE = 10;
+    private final int VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
+
     private SpriteRenderer[] sprites;
     private List<Texture> textureList;
     private int numSprites;
@@ -43,7 +45,6 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
     public BatchRenderer(int maxBatchSize, int zIndex) {
         this.maxBatchSize = maxBatchSize;
         this.zIndex = zIndex;
-        shader = AssetPool.getShader("assets/shaders/defaultShader.glsl");
         this.sprites = new SpriteRenderer[this.maxBatchSize];
         // 4 is the number of vertices per quadrilateral
         vertices = new float[maxBatchSize * 4 * VERTEX_SIZE];
@@ -69,17 +70,21 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, false, VERTEX_SIZE_IN_BYTES, POSITION_OFFSET);
+        // Enable the buffer attribute pointers
+        glVertexAttribPointer(0, POS_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, POS_OFFSET);
         glEnableVertexAttribArray(0);
 
-        glVertexAttribPointer(1, COLOR_SIZE, GL_FLOAT, false, VERTEX_SIZE_IN_BYTES, COLOR_OFFSET);
+        glVertexAttribPointer(1, COLOR_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, COLOR_OFFSET);
         glEnableVertexAttribArray(1);
 
-        glVertexAttribPointer(2, TEXTURE_COORDINATES_SIZE, GL_FLOAT, false, VERTEX_SIZE_IN_BYTES, TEXTURE_COORDINATES_OFFSET);
+        glVertexAttribPointer(2, TEX_COORDS_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, TEX_COORDS_OFFSET);
         glEnableVertexAttribArray(2);
 
-        glVertexAttribPointer(3, TEXTURE_ID_SIZE, GL_FLOAT, false, VERTEX_SIZE_IN_BYTES, TEXTURE_COORDINATES_ID_OFFSET);
+        glVertexAttribPointer(3, TEX_ID_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, TEX_ID_OFFSET);
         glEnableVertexAttribArray(3);
+
+        glVertexAttribPointer(4, ENTITY_ID_SIZE, GL_FLOAT, false, VERTEX_SIZE_BYTES, ENTITY_ID_OFFSET);
+        glEnableVertexAttribArray(4);
     }
 
     public void addSprite(SpriteRenderer spriteRenderer) {
@@ -115,7 +120,7 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
             glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
         }
 
-        shader.use();
+        Shader shader = Renderer.getBoundShader();
         shader.uploadMat4f("uProjMatrix", Window.getCurrentScene().getCamera().getProjectionMatrix());
         shader.uploadMat4f("uViewMatrix", Window.getCurrentScene().getCamera().getViewMatrix());
         for(int i = 0; i < textureList.size(); i++) {
@@ -214,6 +219,8 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
             vertices[offset+7] = textCoords[i].y;
 
             vertices[offset+8] = textureId;
+
+//            vertices[offset + 9] = sprite.parent.getUID() + 1;
 
             offset += VERTEX_SIZE;
         }

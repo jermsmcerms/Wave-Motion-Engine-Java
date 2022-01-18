@@ -51,21 +51,25 @@ public class LevelEditorScene extends Scene {
         for(GameObject go : gameObjectList) {
             go.update(deltaTime);
         }
+    }
 
+    @Override
+    public void render() {
         renderer.render();
     }
 
     @Override
     public void imGui() {
         ImGui.begin("Sprite Palette");
+
         ImVec2 windowPos = new ImVec2();
         ImGui.getWindowPos(windowPos);
-        ImVec2 getWindowSize = new ImVec2();
-        ImGui.getWindowSize(getWindowSize);
+        ImVec2 windowSize = new ImVec2();
+        ImGui.getWindowSize(windowSize);
         ImVec2 itemSpacing = new ImVec2();
         ImGui.getStyle().getItemSpacing(itemSpacing);
 
-        float windowX2 = windowPos.x + getWindowSize.x;
+        float windowX2 = windowPos.x + windowSize.x;
         for(int i = 0; i < spriteSheet.size(); i++) {
             Sprite sprite = spriteSheet.getSprite(i);
             float width = sprite.getWidth() * 2;
@@ -92,11 +96,11 @@ public class LevelEditorScene extends Scene {
     }
 
     private void loadResources() {
-        AssetPool.getShader("assets/shaders/defaultShader.glsl");
-
+//        AssetPool.getShader("assets/shaders/defaultShader.glsl");
+//
         AssetPool.addSpriteSheet(spriteSheetPath,
             new SpriteSheet(AssetPool.getTexture(spriteSheetPath), 16, 16, 81, 0));
-        AssetPool.getTexture("assets/images/green.png");
+//        AssetPool.getTexture("assets/images/green.png");
 
         for(GameObject go : gameObjectList) {
             if(go.getComponent(SpriteRenderer.class) != null) {

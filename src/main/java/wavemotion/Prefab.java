@@ -8,11 +8,12 @@ import wavemotion.entities.GameObject;
 
 public class Prefab {
     public static GameObject generateSpriteObject(Sprite sprite, float sizeX, float sizeY) {
-        GameObject block = new GameObject("sprite_obj_gen", new Transform(new Vector2f(),
-            new Vector2f(sizeX, sizeY)), 0);
+        GameObject block = new GameObject("sprite_obj_gen",
+            new Transform(new Vector2f(), new Vector2f(sizeX, sizeY)), 0);
         SpriteRenderer renderer = new SpriteRenderer();
         renderer.setSprite(sprite);
         block.addComponent(renderer);
+
         return block;
     }
 }
