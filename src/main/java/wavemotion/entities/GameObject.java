@@ -10,9 +10,9 @@ public class GameObject {
     public Transform transform;
 
     private static int ID_COUNT = 0;
-    private int uid;
 
     private String name;
+    private int uid = -1;
     private List<Component> componentsList;
     private int zIndex;
 
@@ -26,7 +26,7 @@ public class GameObject {
         this.transform = transform;
         this.zIndex = zIndex;
         uid = ID_COUNT++;
-        System.out.println("gouid: " + uid);
+        System.out.println("game object name: " + name + " id: " + uid);
     }
 
     public int getZIndex() {
@@ -56,6 +56,7 @@ public class GameObject {
 
     public void addComponent(Component component) {
         component.generateId();
+        System.out.println("Game object id: " + uid + ", comp id: " + component.getUID());
         componentsList.add(component);
         component.parent = this;
     }

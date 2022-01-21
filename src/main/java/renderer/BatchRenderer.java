@@ -134,7 +134,7 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
 
-        glDrawElements(GL_TRIANGLES, numSprites * VERTEX_SIZE, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, numSprites * 6, GL_UNSIGNED_INT, 0);
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
@@ -161,7 +161,7 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
     }
 
     private int[] generateIndices() {
-        int[] elements = new int[VERTEX_SIZE * maxBatchSize];
+        int[] elements = new int[6 * maxBatchSize];
         for(int i = 0; i < maxBatchSize; i++) {
             loadElementIndices(elements, i);
         }
@@ -169,7 +169,7 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
     }
 
     private void loadElementIndices(int[] elements, int index) {
-        int offsetArrayIndex = VERTEX_SIZE * index;
+        int offsetArrayIndex = 6 * index;
         int offset = Float.BYTES * index;
         elements[offsetArrayIndex]      = offset + 3;
         elements[offsetArrayIndex + 1]  = offset + 2;
@@ -220,7 +220,7 @@ public class BatchRenderer implements Comparable<BatchRenderer> {
 
             vertices[offset+8] = textureId;
 
-//            vertices[offset + 9] = sprite.parent.getUID() + 1;
+            vertices[offset + 9] = sprite.parent.getUID() + 1;
 
             offset += VERTEX_SIZE;
         }

@@ -27,8 +27,8 @@ public class LevelEditorScene extends Scene {
 
     @Override
     public void init() {
-        levelEditorRoot.addComponent(new MouseControls());
         levelEditorRoot.addComponent(new GridLines());
+        levelEditorRoot.addComponent(new MouseControls());
         loadResources();
         renderer = new Renderer();
         camera = new Camera(new Vector2f());
@@ -37,8 +37,6 @@ public class LevelEditorScene extends Scene {
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
-
-        DebugDraw.addLine2D(new Vector2f(0,0), new Vector2f(800, 800), new Vector3f(0,0,1), 120);
 
         if(levelLoaded && gameObjectList.size() > 0) {
             activeGameObject = gameObjectList.get(0);
@@ -72,21 +70,22 @@ public class LevelEditorScene extends Scene {
         float windowX2 = windowPos.x + windowSize.x;
         for(int i = 0; i < spriteSheet.size(); i++) {
             Sprite sprite = spriteSheet.getSprite(i);
-            float width = sprite.getWidth() * 2;
-            float height = sprite.getHeight() * 2;
+            float width = sprite.getWidth() * 4;
+            float height = sprite.getHeight() * 4;
             int id = sprite.getTextureId();
             Vector2f[] texCoords = sprite.getTextureCoordinates();
 
             ImGui.pushID(i);
             if(ImGui.imageButton(id, width, height, texCoords[2].x, texCoords[0].y, texCoords[0].x, texCoords[2].y)) {
-                GameObject gameObject = Prefab.generateSpriteObject(sprite, width, height);
+                GameObject gameObject = Prefab.generateSpriteObject(sprite, 32, 32);
                 levelEditorRoot.getComponent(MouseControls.class).pickupObject(gameObject);
             }
             ImGui.popID();
 
             ImVec2 lastPos = new ImVec2();
             ImGui.getItemRectMax(lastPos);
-            float nextButtonX2 = lastPos.x + itemSpacing.x + width;
+            float lastButtonX2 = lastPos.x;
+            float nextButtonX2 = lastButtonX2 + itemSpacing.x + width;
 
             if(i+1 < spriteSheet.size() && nextButtonX2 < windowX2) {
                 ImGui.sameLine();
@@ -96,11 +95,11 @@ public class LevelEditorScene extends Scene {
     }
 
     private void loadResources() {
-//        AssetPool.getShader("assets/shaders/defaultShader.glsl");
-//
+        AssetPool.getShader("assets/shaders/defaultShader.glsl");
+
         AssetPool.addSpriteSheet(spriteSheetPath,
             new SpriteSheet(AssetPool.getTexture(spriteSheetPath), 16, 16, 81, 0));
-//        AssetPool.getTexture("assets/images/green.png");
+        AssetPool.getTexture("assets/images/green.png");
 
         for(GameObject go : gameObjectList) {
             if(go.getComponent(SpriteRenderer.class) != null) {

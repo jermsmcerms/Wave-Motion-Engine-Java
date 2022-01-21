@@ -99,6 +99,9 @@ public class MouseListener {
 
     public static boolean mouseButtonDown(int button) {
         if (button < get().mouseButtonPressed.length) {
+            if(button>0) {
+                System.out.println("");
+            }
             return get().mouseButtonPressed[button];
         } else {
             return false;

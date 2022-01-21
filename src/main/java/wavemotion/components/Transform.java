@@ -2,7 +2,7 @@ package wavemotion.components;
 
 import org.joml.Vector2f;
 
-public class Transform extends Component {
+public class Transform {
     public Vector2f position;
     public Vector2f scale;
 
@@ -44,15 +44,5 @@ public class Transform extends Component {
 
         Transform t = (Transform) o;
         return t.position.equals(position) && t.scale.equals(scale);
-    }
-
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void update(float dt) {
-
     }
 }
